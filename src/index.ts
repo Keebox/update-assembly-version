@@ -1,4 +1,4 @@
-import { getInput, setFailed, getBooleanInput } from '@actions/core';
+import { getInput, setFailed, getBooleanInput, info } from '@actions/core';
 import { readFileSync, writeFileSync } from 'fs';
 import { createCommit } from './git';
 import {
@@ -61,6 +61,7 @@ const main = async () => {
       ref = process.env.GITHUB_REF;
     }
     ref = ref.replace('refs/', '');
+    info(`Using ${ref} ref`);
     await createCommit({
       file: {
         content: newFile,
