@@ -54,7 +54,7 @@ const main = async () => {
     if (!process.env.GITHUB_REF) {
       throw new Error('Cannot get Github ref');
     }
-    const ref = process.env.GITHUB_REF;
+    const ref = process.env.GITHUB_REF.replace('refs/', '');
     await createCommit({
       file: {
         content: newFile,
