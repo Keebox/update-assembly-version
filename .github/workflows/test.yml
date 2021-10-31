@@ -30,7 +30,10 @@ jobs:
           new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
           echo $new_version
           echo $OLD_VERSION
-          if [ $new_version == $env.OLD_VERSION ]
+          new_arr=($(echo $new_version | tr "." "\n"))
+          old_arr=($(echo $OLD_VERSION | tr "." "\n"))
+          res=$((new_arr[1]-old_arr[1]))
+          if [ res != 1 ]
           then
             exit 1
           else
