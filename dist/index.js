@@ -2,17 +2,15 @@
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 8102:
-/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "r": () => (/* binding */ createCommit)
-/* harmony export */ });
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(5438);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_0__);
 
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createCommit = void 0;
+const github_1 = __nccwpck_require__(5438);
 async function createCommit({ githubToken, message, owner, repo, file, }) {
-    const octokit = (0,_actions_github__WEBPACK_IMPORTED_MODULE_0__.getOctokit)(githubToken);
+    const octokit = (0, github_1.getOctokit)(githubToken);
     const blob = await octokit.rest.git.createBlob({
         owner,
         repo,
@@ -40,96 +38,18 @@ async function createCommit({ githubToken, message, owner, repo, file, }) {
         },
     });
 }
+exports.createCommit = createCommit;
 
-
-/***/ }),
-
-/***/ 1667:
-/***/ ((module, __webpack_exports__, __nccwpck_require__) => {
-
-"use strict";
-__nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__) => {
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(5747);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _git__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(8102);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(4140);
-
-
-
-
-try {
-    const githubToken = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)('GITHUB_TOKEN', {
-        trimWhitespace: true,
-        required: true,
-    });
-    const assemblyFile = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)('assembly-file', {
-        trimWhitespace: true,
-        required: true,
-    });
-    const increaseBuild = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput)('increase-build', {
-        trimWhitespace: true,
-    });
-    const increaseRelease = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput)('increase-release', {
-        trimWhitespace: true,
-    });
-    const tag = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)('tag', {
-        trimWhitespace: true,
-    });
-    const file = (0,fs__WEBPACK_IMPORTED_MODULE_1__.readFileSync)(assemblyFile, { encoding: 'utf8' });
-    const version = (0,_utils__WEBPACK_IMPORTED_MODULE_3__/* .findAssemblyVersion */ .XR)(file);
-    const versionInfo = (0,_utils__WEBPACK_IMPORTED_MODULE_3__/* .parseVersion */ .wy)(version);
-    if (increaseBuild) {
-        versionInfo.build += 1;
-        versionInfo.tag = undefined;
-    }
-    if (increaseRelease) {
-        versionInfo.release += 1;
-        versionInfo.build = 0;
-        versionInfo.tag = undefined;
-    }
-    if (tag) {
-        versionInfo.tag = tag;
-    }
-    const newVersion = (0,_utils__WEBPACK_IMPORTED_MODULE_3__/* .buildVersionString */ .zs)(versionInfo);
-    const newFile = (0,_utils__WEBPACK_IMPORTED_MODULE_3__/* .replaceVersion */ .xM)(file, newVersion);
-    (0,fs__WEBPACK_IMPORTED_MODULE_1__.writeFileSync)(assemblyFile, newFile);
-    if (!process.env.GITHUB_REPOSITORY) {
-        throw new Error('Cannot get Github repository from environment variable');
-    }
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-    await (0,_git__WEBPACK_IMPORTED_MODULE_2__/* .createCommit */ .r)({
-        file: {
-            content: newFile,
-            path: assemblyFile,
-        },
-        githubToken,
-        message: `Update version from ${version} to ${newVersion}`,
-        owner,
-        repo,
-    });
-}
-catch (error) {
-    (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed)(error);
-}
-
-__webpack_handle_async_dependencies__();
-}, 1);
 
 /***/ }),
 
 /***/ 4140:
-/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "XR": () => (/* binding */ findAssemblyVersion),
-/* harmony export */   "wy": () => (/* binding */ parseVersion),
-/* harmony export */   "zs": () => (/* binding */ buildVersionString),
-/* harmony export */   "xM": () => (/* binding */ replaceVersion)
-/* harmony export */ });
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.replaceVersion = exports.buildVersionString = exports.parseVersion = exports.findAssemblyVersion = void 0;
 const assemblyVersionRegExp = /AssemblyVersion\s*\(\s*"(?<version>\d+\.\d+(-\w+)?)"\s*\)/;
 const buildVersionRegExp = /^(?<release>\d+\.)(?<build>\d+)(-(?<tag>\w+))?$/;
 function findAssemblyVersion(input) {
@@ -139,6 +59,7 @@ function findAssemblyVersion(input) {
     }
     return groups['version'];
 }
+exports.findAssemblyVersion = findAssemblyVersion;
 function parseVersion(version) {
     const groups = version.match(buildVersionRegExp)?.groups;
     if (!groups) {
@@ -150,6 +71,7 @@ function parseVersion(version) {
         tag: groups['tag'] ?? undefined,
     };
 }
+exports.parseVersion = parseVersion;
 function buildVersionString(versionInfo) {
     let result = `${versionInfo.release}.${versionInfo.build}`;
     if (versionInfo.tag) {
@@ -157,9 +79,11 @@ function buildVersionString(versionInfo) {
     }
     return result;
 }
+exports.buildVersionString = buildVersionString;
 function replaceVersion(input, version) {
     return input.replace(assemblyVersionRegExp, `AssemblyVersion("${version}")`);
 }
+exports.replaceVersion = replaceVersion;
 
 
 /***/ }),
@@ -8597,131 +8521,82 @@ module.exports = require("zlib");
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/async module */
-/******/ 	(() => {
-/******/ 		var webpackThen = typeof Symbol === "function" ? Symbol("webpack then") : "__webpack_then__";
-/******/ 		var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
-/******/ 		var completeQueue = (queue) => {
-/******/ 			if(queue) {
-/******/ 				queue.forEach((fn) => (fn.r--));
-/******/ 				queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
-/******/ 			}
-/******/ 		}
-/******/ 		var completeFunction = (fn) => (!--fn.r && fn());
-/******/ 		var queueFunction = (queue, fn) => (queue ? queue.push(fn) : completeFunction(fn));
-/******/ 		var wrapDeps = (deps) => (deps.map((dep) => {
-/******/ 			if(dep !== null && typeof dep === "object") {
-/******/ 				if(dep[webpackThen]) return dep;
-/******/ 				if(dep.then) {
-/******/ 					var queue = [];
-/******/ 					dep.then((r) => {
-/******/ 						obj[webpackExports] = r;
-/******/ 						completeQueue(queue);
-/******/ 						queue = 0;
-/******/ 					});
-/******/ 					var obj = {};
-/******/ 												obj[webpackThen] = (fn, reject) => (queueFunction(queue, fn), dep.catch(reject));
-/******/ 					return obj;
-/******/ 				}
-/******/ 			}
-/******/ 			var ret = {};
-/******/ 								ret[webpackThen] = (fn) => (completeFunction(fn));
-/******/ 								ret[webpackExports] = dep;
-/******/ 								return ret;
-/******/ 		}));
-/******/ 		__nccwpck_require__.a = (module, body, hasAwait) => {
-/******/ 			var queue = hasAwait && [];
-/******/ 			var exports = module.exports;
-/******/ 			var currentDeps;
-/******/ 			var outerResolve;
-/******/ 			var reject;
-/******/ 			var isEvaluating = true;
-/******/ 			var nested = false;
-/******/ 			var whenAll = (deps, onResolve, onReject) => {
-/******/ 				if (nested) return;
-/******/ 				nested = true;
-/******/ 				onResolve.r += deps.length;
-/******/ 				deps.map((dep, i) => (dep[webpackThen](onResolve, onReject)));
-/******/ 				nested = false;
-/******/ 			};
-/******/ 			var promise = new Promise((resolve, rej) => {
-/******/ 				reject = rej;
-/******/ 				outerResolve = () => (resolve(exports), completeQueue(queue), queue = 0);
-/******/ 			});
-/******/ 			promise[webpackExports] = exports;
-/******/ 			promise[webpackThen] = (fn, rejectFn) => {
-/******/ 				if (isEvaluating) { return completeFunction(fn); }
-/******/ 				if (currentDeps) whenAll(currentDeps, fn, rejectFn);
-/******/ 				queueFunction(queue, fn);
-/******/ 				promise.catch(rejectFn);
-/******/ 			};
-/******/ 			module.exports = promise;
-/******/ 			body((deps) => {
-/******/ 				if(!deps) return outerResolve();
-/******/ 				currentDeps = wrapDeps(deps);
-/******/ 				var fn, result;
-/******/ 				var promise = new Promise((resolve, reject) => {
-/******/ 					fn = () => (resolve(result = currentDeps.map((d) => (d[webpackExports]))));
-/******/ 					fn.r = 0;
-/******/ 					whenAll(currentDeps, fn, reject);
-/******/ 				});
-/******/ 				return fn.r ? promise : result;
-/******/ 			}).then(outerResolve, reject);
-/******/ 			isEvaluating = false;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__nccwpck_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__nccwpck_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nccwpck_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module used 'module' so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(1667);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+var exports = __webpack_exports__;
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(2186);
+const fs_1 = __nccwpck_require__(5747);
+const git_1 = __nccwpck_require__(8102);
+const utils_1 = __nccwpck_require__(4140);
+const main = async () => {
+    try {
+        const githubToken = (0, core_1.getInput)('GITHUB_TOKEN', {
+            trimWhitespace: true,
+            required: true,
+        });
+        const assemblyFile = (0, core_1.getInput)('assembly-file', {
+            trimWhitespace: true,
+            required: true,
+        });
+        const increaseBuild = (0, core_1.getBooleanInput)('increase-build', {
+            trimWhitespace: true,
+        });
+        const increaseRelease = (0, core_1.getBooleanInput)('increase-release', {
+            trimWhitespace: true,
+        });
+        const tag = (0, core_1.getInput)('tag', {
+            trimWhitespace: true,
+        });
+        const file = (0, fs_1.readFileSync)(assemblyFile, { encoding: 'utf8' });
+        const version = (0, utils_1.findAssemblyVersion)(file);
+        const versionInfo = (0, utils_1.parseVersion)(version);
+        if (increaseBuild) {
+            versionInfo.build += 1;
+            versionInfo.tag = undefined;
+        }
+        if (increaseRelease) {
+            versionInfo.release += 1;
+            versionInfo.build = 0;
+            versionInfo.tag = undefined;
+        }
+        if (tag) {
+            versionInfo.tag = tag;
+        }
+        const newVersion = (0, utils_1.buildVersionString)(versionInfo);
+        const newFile = (0, utils_1.replaceVersion)(file, newVersion);
+        (0, fs_1.writeFileSync)(assemblyFile, newFile);
+        if (!process.env.GITHUB_REPOSITORY) {
+            throw new Error('Cannot get Github repository from environment variable');
+        }
+        const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+        await (0, git_1.createCommit)({
+            file: {
+                content: newFile,
+                path: assemblyFile,
+            },
+            githubToken,
+            message: `Update version from ${version} to ${newVersion}`,
+            owner,
+            repo,
+        });
+    }
+    catch (error) {
+        (0, core_1.setFailed)(error);
+    }
+};
+main();
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
