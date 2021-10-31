@@ -1,0 +1,18 @@
+name: 'Update Assembly Version'
+description: 'Updates assembly attributes in given file according to config'
+inputs:
+  assembly-file:
+    description: 'Path to file that contains assembly version'
+    required: true
+  tag:
+    description: 'Assembly tag'
+  increase-build:
+    description: 'Whether to increase build number'
+    default: true
+  increase-release:
+    description: 'Whether to increase release number'
+    default: true
+
+runs:
+  using: 'node16'
+  main: 'app.js'
