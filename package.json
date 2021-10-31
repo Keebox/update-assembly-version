@@ -8,7 +8,7 @@
     "precompile": "rimraf build",
     "test": "jest",
     "prebuld": "rimraf dist",
-    "build": "npm run compile && ncc build"
+    "build": "ncc build"
   },
   "keywords": [],
   "author": "",
