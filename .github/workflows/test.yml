@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Save current version
         run: |
+          echo $GITHUB_REF;
           old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
           echo "OLD_VERSION=$old_version" >> $GITHUB_ENV;
       - name: Run action
