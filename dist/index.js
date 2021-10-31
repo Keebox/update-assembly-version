@@ -127,7 +127,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         if (!process.env.GITHUB_REF) {
             throw new Error('Cannot get Github ref');
         }
-        const ref = process.env.GITHUB_REF;
+        const ref = process.env.GITHUB_REF.replace('refs/', '');
         yield (0, git_1.createCommit)({
             file: {
                 content: newFile,
