@@ -29,7 +29,7 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
         const baseTree = yield octokit.rest.git.getRef({
             owner,
             repo,
-            ref: 'heads/master'
+            ref: 'heads/master',
         });
         const tree = yield octokit.rest.git.createTree({
             owner,
@@ -42,13 +42,14 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
                     mode: '100644',
                 },
             ],
-            base_tree: baseTree.data.object.sha
+            base_tree: baseTree.data.object.sha,
         });
         const commit = yield octokit.rest.git.createCommit({
             message,
             owner,
             repo,
             tree: tree.data.sha,
+            parents: [baseTree.data.object.sha],
         });
         yield octokit.rest.git.updateRef({
             owner,
