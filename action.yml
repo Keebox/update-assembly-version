@@ -9,7 +9,7 @@ inputs:
     default: true
   increase-release:
     description: 'Whether to increase release number'
-    default: true
+    default: false
   tag:
     description: 'Assembly tag'
   GITHUB_TOKEN:
