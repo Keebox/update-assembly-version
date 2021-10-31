@@ -135,6 +135,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             ref = process.env.GITHUB_REF;
         }
         ref = ref.replace('refs/', '');
+        (0, core_1.info)(`Using ${ref} ref`);
         yield (0, git_1.createCommit)({
             file: {
                 content: newFile,
