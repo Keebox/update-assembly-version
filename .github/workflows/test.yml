@@ -1,0 +1,35 @@
+name: Test action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Original file
+          path: AssemblyVersion.cs
+      - name: Save current version
+        run: |
+          old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
+          echo "OLD_VERSION=$old_version" >> $GITHUB_ENV;
+      - name: Run action
+        uses: keebox/update-assembly-version@v0
+        with:
+          GITHUB_TOKEN: { { secrets.GITHUB_TOKEN } }
+          assembly-file: AssemblyVersion.cs
+          increase-build: true
+          increase-release: false
+      - name: Check new version
+        run: |
+          new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
+          if [$new_version == $env.OLD_VERSION]
+          then
+            exit 1
+          else
+            echo "All good"
