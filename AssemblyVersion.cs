@@ -4,4 +4,4 @@ using System.Resources;
 
 
 [assembly: AssemblyCompany("Test Application")]
-[assembly: AssemblyVersion("6.1")]
+[assembly: AssemblyVersion("7.0")]
