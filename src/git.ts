@@ -7,6 +7,7 @@ export async function createCommit({
   owner,
   repo,
   file,
+  ref,
 }: CommitInfo) {
   const octokit = getOctokit(githubToken);
   const blob = await octokit.rest.git.createBlob({
@@ -17,7 +18,7 @@ export async function createCommit({
   const baseTree = await octokit.rest.git.getRef({
     owner,
     repo,
-    ref: 'heads/master',
+    ref,
   });
   const tree = await octokit.rest.git.createTree({
     owner,
@@ -42,7 +43,7 @@ export async function createCommit({
   await octokit.rest.git.updateRef({
     owner,
     repo,
-    ref: `heads/master`,
+    ref,
     sha: commit.data.sha,
   });
 }

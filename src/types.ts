@@ -9,6 +9,7 @@ export type CommitInfo = {
   message: string;
   repo: string;
   owner: string;
+  ref: string;
   file: {
     path: string;
     content: string;

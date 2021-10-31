@@ -51,6 +51,10 @@ const main = async () => {
       throw new Error('Cannot get Github repository from environment variable');
     }
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+    if (!process.env.GITHUB_REF) {
+      throw new Error('Cannot get Github ref');
+    }
+    const ref = process.env.GITHUB_REF;
     await createCommit({
       file: {
         content: newFile,
@@ -60,6 +64,7 @@ const main = async () => {
       message: `Update version from ${version} to ${newVersion}`,
       owner,
       repo,
+      ref,
     });
   } catch (error) {
     setFailed(error as Error);
