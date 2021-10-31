@@ -17,8 +17,8 @@ export async function createCommit({
   const baseTree = await octokit.rest.git.getRef({
     owner,
     repo,
-    ref: 'heads/master'
-  })
+    ref: 'heads/master',
+  });
   const tree = await octokit.rest.git.createTree({
     owner,
     repo,
@@ -30,18 +30,18 @@ export async function createCommit({
         mode: '100644',
       },
     ],
-    base_tree: baseTree.data.object.sha
+    base_tree: baseTree.data.object.sha,
   });
   const commit = await octokit.rest.git.createCommit({
     message,
     owner,
     repo,
     tree: tree.data.sha,
+    parents: [baseTree.data.object.sha],
   });
   await octokit.rest.git.updateRef({
     owner,
     repo,
-    force: true,
     ref: `heads/master`,
     sha: commit.data.sha,
   });
