@@ -126,7 +126,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
         let ref;
         if (process.env.GITHUB_HEAD_REF) {
-            ref = process.env.GITHUB_HEAD_REF;
+            ref = `heads/${process.env.GITHUB_HEAD_REF}`;
         }
         else {
             if (!process.env.GITHUB_REF) {
