@@ -26,10 +26,16 @@ export async function createCommit({
       },
     ],
   });
-  await octokit.rest.git.createCommit({
+  const commit = await octokit.rest.git.createCommit({
     message,
     owner,
     repo,
     tree: tree.data.sha,
+  });
+  await octokit.rest.git.updateRef({
+    owner,
+    repo,
+    ref: `refs/heads/master`,
+    sha: commit.data.sha,
   });
 }
