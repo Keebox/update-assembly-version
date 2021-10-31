@@ -26,6 +26,11 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
             repo,
             content: file.content,
         });
+        const baseTree = yield octokit.rest.git.getRef({
+            owner,
+            repo,
+            ref: 'heads/master'
+        });
         const tree = yield octokit.rest.git.createTree({
             owner,
             repo,
@@ -37,6 +42,7 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
                     mode: '100644',
                 },
             ],
+            base_tree: baseTree.data.object.sha
         });
         const commit = yield octokit.rest.git.createCommit({
             message,
@@ -47,7 +53,7 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
         yield octokit.rest.git.updateRef({
             owner,
             repo,
-            ref: `refs/heads/master`,
+            ref: `heads/master`,
             sha: commit.data.sha,
         });
     });
