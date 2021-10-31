@@ -4,16 +4,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build-version:
+    name: Update build version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Original file
-          path: AssemblyVersion.cs
       - name: Save current version
         run: |
           old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
@@ -38,5 +34,43 @@ jobs:
           then
             exit 1
           else
-            echo "All good"
+            echo "Build number increased"
+          fi
+  release-version:
+    needs: build-version
+    name: Update release version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Save current version
+        run: |
+          old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
+          echo "OLD_VERSION=$old_version" >> $GITHUB_ENV;
+      - name: Run action
+        uses: keebox/update-assembly-version@v0.9
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          assembly-file: AssemblyVersion.cs
+          increase-build: true
+          increase-release: true
+      - name: Check new version
+        run: |
+          new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
+          echo $new_version
+          echo $OLD_VERSION
+          new_arr=($(echo $new_version | tr "." "\n"))
+          old_arr=($(echo $OLD_VERSION | tr "." "\n"))
+          if [ $new_arr[1] != 0 ]
+          then
+            exit 1
+          else
+            echo "Build version reset"
+          fi
+          res=$((new_arr[0]-old_arr[0]))
+          if [ $res != 1 ]
+          then
+            exit 1
+          else
+            echo "Release version increased"
           fi
