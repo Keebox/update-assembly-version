@@ -21,7 +21,7 @@ jobs:
       - name: Run action
         uses: keebox/update-assembly-version@v0
         with:
-          GITHUB_TOKEN: { { secrets.GITHUB_TOKEN } }
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           assembly-file: AssemblyVersion.cs
           increase-build: true
           increase-release: false
