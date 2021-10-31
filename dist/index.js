@@ -53,6 +53,7 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
         yield octokit.rest.git.updateRef({
             owner,
             repo,
+            force: true,
             ref: `heads/master`,
             sha: commit.data.sha,
         });
