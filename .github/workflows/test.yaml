@@ -17,7 +17,7 @@ jobs:
           old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
           echo "OLD_VERSION=$old_version" >> $GITHUB_ENV;
       - name: Run action
-        uses: keebox/update-assembly-version
+        uses: keebox/update-assembly-version@v0
       - name: Check new version
         run: |
           new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
