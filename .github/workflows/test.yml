@@ -28,7 +28,9 @@ jobs:
       - name: Check new version
         run: |
           new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
-          if [$new_version == $env.OLD_VERSION]
+          echo $new_version
+          echo $env.OLD_VERSION
+          if [ $new_version == $env.OLD_VERSION ]
           then
             exit 1
           else
