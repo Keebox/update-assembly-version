@@ -29,7 +29,7 @@ jobs:
         run: |
           new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
           echo $new_version
-          echo $env.OLD_VERSION
+          echo $OLD_VERSION
           if [ $new_version == $env.OLD_VERSION ]
           then
             exit 1
