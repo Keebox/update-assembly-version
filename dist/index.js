@@ -43,9 +43,6 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
             owner,
             repo,
             tree: tree.data.sha,
-            committer: {
-                name: 'Assembly Version Action',
-            },
         });
     });
 }
