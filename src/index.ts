@@ -51,10 +51,14 @@ const main = async () => {
       throw new Error('Cannot get Github repository from environment variable');
     }
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-    if (!process.env.GITHUB_REF) {
+    if (!process.env.GITHUB_REF || !process.env.GITHUB_HEAD_REF) {
       throw new Error('Cannot get Github ref');
     }
-    const ref = process.env.GITHUB_REF.replace('refs/', '');
+    const ref = (
+      process.env.GITHUB_REF.startsWith('refs/pull')
+        ? process.env.GITHUB_HEAD_REF
+        : process.env.GITHUB_REF
+    ).replace('refs/', '');
     await createCommit({
       file: {
         content: newFile,
