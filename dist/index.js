@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCommit = void 0;
 const github_1 = __nccwpck_require__(5438);
-function createCommit({ githubToken, message, owner, repo, file, }) {
+function createCommit({ githubToken, message, owner, repo, file, ref, }) {
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = (0, github_1.getOctokit)(githubToken);
         const blob = yield octokit.rest.git.createBlob({
@@ -29,7 +29,7 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
         const baseTree = yield octokit.rest.git.getRef({
             owner,
             repo,
-            ref: 'heads/master',
+            ref,
         });
         const tree = yield octokit.rest.git.createTree({
             owner,
@@ -54,7 +54,7 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
         yield octokit.rest.git.updateRef({
             owner,
             repo,
-            ref: `heads/master`,
+            ref,
             sha: commit.data.sha,
         });
     });
@@ -124,6 +124,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             throw new Error('Cannot get Github repository from environment variable');
         }
         const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+        if (!process.env.GITHUB_REF) {
+            throw new Error('Cannot get Github ref');
+        }
+        const ref = process.env.GITHUB_REF;
         yield (0, git_1.createCommit)({
             file: {
                 content: newFile,
@@ -133,6 +137,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             message: `Update version from ${version} to ${newVersion}`,
             owner,
             repo,
+            ref,
         });
     }
     catch (error) {
