@@ -62,7 +62,8 @@ jobs:
           echo $OLD_VERSION
           new_arr=($(echo $new_version | tr "." "\n"))
           old_arr=($(echo $OLD_VERSION | tr "." "\n"))
-          if [ $new_arr[1] != 0 ]
+          build=$((new_arr[1]))
+          if [ build != 0 ]
           then
             echo "Build number is not reset"
             exit 1
