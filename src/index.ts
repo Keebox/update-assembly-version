@@ -53,7 +53,7 @@ const main = async () => {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     let ref: string;
     if (process.env.GITHUB_HEAD_REF) {
-      ref = process.env.GITHUB_HEAD_REF;
+      ref = `heads/${process.env.GITHUB_HEAD_REF}`;
     } else {
       if (!process.env.GITHUB_REF) {
         throw new Error('Cannot get Github ref');
