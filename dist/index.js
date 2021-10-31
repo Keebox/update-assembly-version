@@ -124,12 +124,17 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             throw new Error('Cannot get Github repository from environment variable');
         }
         const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-        if (!process.env.GITHUB_REF || !process.env.GITHUB_HEAD_REF) {
-            throw new Error('Cannot get Github ref');
+        let ref;
+        if (process.env.GITHUB_HEAD_REF) {
+            ref = process.env.GITHUB_HEAD_REF;
         }
-        const ref = (process.env.GITHUB_REF.startsWith('refs/pull')
-            ? process.env.GITHUB_HEAD_REF
-            : process.env.GITHUB_REF).replace('refs/', '');
+        else {
+            if (!process.env.GITHUB_REF) {
+                throw new Error('Cannot get Github ref');
+            }
+            ref = process.env.GITHUB_REF;
+        }
+        ref = ref.replace('refs/', '');
         yield (0, git_1.createCommit)({
             file: {
                 content: newFile,
