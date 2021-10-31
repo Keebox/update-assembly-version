@@ -31,8 +31,5 @@ export async function createCommit({
     owner,
     repo,
     tree: tree.data.sha,
-    committer: {
-      name: 'Assembly Version Action',
-    },
   });
 }
