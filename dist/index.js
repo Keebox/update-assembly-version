@@ -2,43 +2,134 @@
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 8102:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCommit = void 0;
 const github_1 = __nccwpck_require__(5438);
-async function createCommit({ githubToken, message, owner, repo, file, }) {
-    const octokit = (0, github_1.getOctokit)(githubToken);
-    const blob = await octokit.rest.git.createBlob({
-        owner,
-        repo,
-        content: file.content,
-    });
-    const tree = await octokit.rest.git.createTree({
-        owner,
-        repo,
-        tree: [
-            {
-                path: file.path,
-                sha: blob.data.sha,
-                type: 'blob',
-                mode: '100644',
+function createCommit({ githubToken, message, owner, repo, file, }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const octokit = (0, github_1.getOctokit)(githubToken);
+        const blob = yield octokit.rest.git.createBlob({
+            owner,
+            repo,
+            content: file.content,
+        });
+        const tree = yield octokit.rest.git.createTree({
+            owner,
+            repo,
+            tree: [
+                {
+                    path: file.path,
+                    sha: blob.data.sha,
+                    type: 'blob',
+                    mode: '100644',
+                },
+            ],
+        });
+        yield octokit.rest.git.createCommit({
+            message,
+            owner,
+            repo,
+            tree: tree.data.sha,
+            committer: {
+                name: 'Assembly Version Action',
             },
-        ],
-    });
-    await octokit.rest.git.createCommit({
-        message,
-        owner,
-        repo,
-        tree: tree.data.sha,
-        committer: {
-            name: 'Assembly Version Action',
-        },
+        });
     });
 }
 exports.createCommit = createCommit;
+
+
+/***/ }),
+
+/***/ 1667:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(2186);
+const fs_1 = __nccwpck_require__(5747);
+const git_1 = __nccwpck_require__(8102);
+const utils_1 = __nccwpck_require__(4140);
+const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const githubToken = (0, core_1.getInput)('GITHUB_TOKEN', {
+            trimWhitespace: true,
+            required: true,
+        });
+        const assemblyFile = (0, core_1.getInput)('assembly-file', {
+            trimWhitespace: true,
+            required: true,
+        });
+        const increaseBuild = (0, core_1.getBooleanInput)('increase-build', {
+            trimWhitespace: true,
+        });
+        const increaseRelease = (0, core_1.getBooleanInput)('increase-release', {
+            trimWhitespace: true,
+        });
+        const tag = (0, core_1.getInput)('tag', {
+            trimWhitespace: true,
+        });
+        const file = (0, fs_1.readFileSync)(assemblyFile, { encoding: 'utf8' });
+        const version = (0, utils_1.findAssemblyVersion)(file);
+        const versionInfo = (0, utils_1.parseVersion)(version);
+        if (increaseBuild) {
+            versionInfo.build += 1;
+            versionInfo.tag = undefined;
+        }
+        if (increaseRelease) {
+            versionInfo.release += 1;
+            versionInfo.build = 0;
+            versionInfo.tag = undefined;
+        }
+        if (tag) {
+            versionInfo.tag = tag;
+        }
+        const newVersion = (0, utils_1.buildVersionString)(versionInfo);
+        const newFile = (0, utils_1.replaceVersion)(file, newVersion);
+        (0, fs_1.writeFileSync)(assemblyFile, newFile);
+        if (!process.env.GITHUB_REPOSITORY) {
+            throw new Error('Cannot get Github repository from environment variable');
+        }
+        const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+        yield (0, git_1.createCommit)({
+            file: {
+                content: newFile,
+                path: assemblyFile,
+            },
+            githubToken,
+            message: `Update version from ${version} to ${newVersion}`,
+            owner,
+            repo,
+        });
+    }
+    catch (error) {
+        (0, core_1.setFailed)(error);
+    }
+});
+main();
 
 
 /***/ }),
@@ -53,7 +144,8 @@ exports.replaceVersion = exports.buildVersionString = exports.parseVersion = exp
 const assemblyVersionRegExp = /AssemblyVersion\s*\(\s*"(?<version>\d+\.\d+(-\w+)?)"\s*\)/;
 const buildVersionRegExp = /^(?<release>\d+\.)(?<build>\d+)(-(?<tag>\w+))?$/;
 function findAssemblyVersion(input) {
-    const groups = input.match(assemblyVersionRegExp)?.groups;
+    var _a;
+    const groups = (_a = input.match(assemblyVersionRegExp)) === null || _a === void 0 ? void 0 : _a.groups;
     if (!groups) {
         throw new Error('Cannot find AssemblyVersion');
     }
@@ -61,14 +153,15 @@ function findAssemblyVersion(input) {
 }
 exports.findAssemblyVersion = findAssemblyVersion;
 function parseVersion(version) {
-    const groups = version.match(buildVersionRegExp)?.groups;
+    var _a, _b;
+    const groups = (_a = version.match(buildVersionRegExp)) === null || _a === void 0 ? void 0 : _a.groups;
     if (!groups) {
         throw new Error('Cannot parse version');
     }
     return {
         release: parseInt(groups['release']),
         build: parseInt(groups['build']),
-        tag: groups['tag'] ?? undefined,
+        tag: (_b = groups['tag']) !== null && _b !== void 0 ? _b : undefined,
     };
 }
 exports.parseVersion = parseVersion;
@@ -8526,77 +8619,12 @@ module.exports = require("zlib");
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-var exports = __webpack_exports__;
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __nccwpck_require__(2186);
-const fs_1 = __nccwpck_require__(5747);
-const git_1 = __nccwpck_require__(8102);
-const utils_1 = __nccwpck_require__(4140);
-const main = async () => {
-    try {
-        const githubToken = (0, core_1.getInput)('GITHUB_TOKEN', {
-            trimWhitespace: true,
-            required: true,
-        });
-        const assemblyFile = (0, core_1.getInput)('assembly-file', {
-            trimWhitespace: true,
-            required: true,
-        });
-        const increaseBuild = (0, core_1.getBooleanInput)('increase-build', {
-            trimWhitespace: true,
-        });
-        const increaseRelease = (0, core_1.getBooleanInput)('increase-release', {
-            trimWhitespace: true,
-        });
-        const tag = (0, core_1.getInput)('tag', {
-            trimWhitespace: true,
-        });
-        const file = (0, fs_1.readFileSync)(assemblyFile, { encoding: 'utf8' });
-        const version = (0, utils_1.findAssemblyVersion)(file);
-        const versionInfo = (0, utils_1.parseVersion)(version);
-        if (increaseBuild) {
-            versionInfo.build += 1;
-            versionInfo.tag = undefined;
-        }
-        if (increaseRelease) {
-            versionInfo.release += 1;
-            versionInfo.build = 0;
-            versionInfo.tag = undefined;
-        }
-        if (tag) {
-            versionInfo.tag = tag;
-        }
-        const newVersion = (0, utils_1.buildVersionString)(versionInfo);
-        const newFile = (0, utils_1.replaceVersion)(file, newVersion);
-        (0, fs_1.writeFileSync)(assemblyFile, newFile);
-        if (!process.env.GITHUB_REPOSITORY) {
-            throw new Error('Cannot get Github repository from environment variable');
-        }
-        const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-        await (0, git_1.createCommit)({
-            file: {
-                content: newFile,
-                path: assemblyFile,
-            },
-            githubToken,
-            message: `Update version from ${version} to ${newVersion}`,
-            owner,
-            repo,
-        });
-    }
-    catch (error) {
-        (0, core_1.setFailed)(error);
-    }
-};
-main();
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(1667);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
