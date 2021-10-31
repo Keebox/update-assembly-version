@@ -38,11 +38,17 @@ function createCommit({ githubToken, message, owner, repo, file, }) {
                 },
             ],
         });
-        yield octokit.rest.git.createCommit({
+        const commit = yield octokit.rest.git.createCommit({
             message,
             owner,
             repo,
             tree: tree.data.sha,
+        });
+        yield octokit.rest.git.updateRef({
+            owner,
+            repo,
+            ref: `refs/heads/master`,
+            sha: commit.data.sha,
         });
     });
 }
