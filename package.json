@@ -1,22 +1,28 @@
 {
-  "name": "assembly-versioning-action",
+  "name": "update-assembly-version",
   "version": "1.0.0",
-  "description": "Updates assembly attributes in given file according to config",
-  "main": "index.js",
+  "description": "Updates assembly AssemblyVersion in given file according to config",
+  "main": "build/index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "jest"
+    "compile": "tsc",
+    "precompile": "rimraf build",
+    "test": "jest",
+    "prebuld": "rimraf dist",
+    "build": "npm run compile && ncc build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.6.0"
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.6",
+    "@vercel/ncc": "^0.31.1",
     "jest": "^27.3.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4"
   }

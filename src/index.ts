@@ -1,5 +1,6 @@
 import { getInput, setFailed, getBooleanInput } from '@actions/core';
 import { readFileSync, writeFileSync } from 'fs';
+import { createCommit } from './git';
 import {
   buildVersionString,
   findAssemblyVersion,
@@ -8,6 +9,10 @@ import {
 } from './utils';
 
 try {
+  const githubToken = getInput('GITHUB_TOKEN', {
+    trimWhitespace: true,
+    required: true,
+  });
   const assemblyFile = getInput('assembly-file', {
     trimWhitespace: true,
     required: true,
@@ -40,6 +45,21 @@ try {
   const newVersion = buildVersionString(versionInfo);
   const newFile = replaceVersion(file, newVersion);
   writeFileSync(assemblyFile, newFile);
+
+  if (!process.env.GITHUB_REPOSITORY) {
+    throw new Error('Cannot get Github repository from environment variable');
+  }
+  const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+  await createCommit({
+    file: {
+      content: newFile,
+      path: assemblyFile,
+    },
+    githubToken,
+    message: `Update version from ${version} to ${newVersion}`,
+    owner,
+    repo,
+  });
 } catch (error) {
   setFailed(error as Error);
 }

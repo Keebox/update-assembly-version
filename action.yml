@@ -4,14 +4,16 @@ inputs:
   assembly-file:
     description: 'Path to file that contains assembly version'
     required: true
-  tag:
-    description: 'Assembly tag'
   increase-build:
     description: 'Whether to increase build number'
     default: true
   increase-release:
     description: 'Whether to increase release number'
     default: true
+  tag:
+    description: 'Assembly tag'
+  GITHUB_TOKEN:
+    required: true
 
 runs:
   using: 'node16'
