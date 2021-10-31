@@ -41,6 +41,7 @@ export async function createCommit({
   await octokit.rest.git.updateRef({
     owner,
     repo,
+    force: true,
     ref: `heads/master`,
     sha: commit.data.sha,
   });
