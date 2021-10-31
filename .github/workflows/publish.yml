@@ -19,8 +19,13 @@ jobs:
         run: npm run compile
       - name: Build into single file
         run: npm run build
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - name: Commit build
+        uses: github-actions-x/commit@v2.8
         with:
-          name: dist
-          path: dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-branch: 'master'
+          commit-message: 'Add dist'
+          force-add: 'true'
+          files: dist
+
+
