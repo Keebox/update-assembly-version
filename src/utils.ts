@@ -1,8 +1,10 @@
+import { getInput } from '@actions/core';
 import { VersionInfo } from './types';
 
 const assemblyVersionRegExp =
-  /AssemblyVersion\s*\(\s*"(?<version>\d+\.\d+(-\w+)?)"\s*\)/;
-const buildVersionRegExp = /^(?<release>\d+\.)(?<build>\d+)(-(?<tag>\w+))?$/;
+  /AssemblyVersion\s*\(\s*"(?<version>\d+\.\d+(\.\d+)?(-\w+)?)"\s*\)/;
+const buildVersionRegExp =
+  /^(?<major>\d+\.)(?<minor>\d+)(\.(?<build>\d+))?(-(?<tag>\w+))?$/;
 
 export function findAssemblyVersion(input: string): string {
   const groups = input.match(assemblyVersionRegExp)?.groups;
@@ -18,14 +20,19 @@ export function parseVersion(version: string): VersionInfo {
     throw new Error('Cannot parse version');
   }
   return {
-    release: parseInt(groups['release']),
-    build: parseInt(groups['build']),
+    major: parseInt(groups['major']),
+    minor: parseInt(groups['minor']),
+    build:
+      groups['build'] !== undefined ? parseInt(groups['build']) : undefined,
     tag: groups['tag'] ?? undefined,
   };
 }
 
 export function buildVersionString(versionInfo: VersionInfo): string {
-  let result = `${versionInfo.release}.${versionInfo.build}`;
+  let result = `${versionInfo.major}.${versionInfo.minor}`;
+  if (versionInfo.build !== undefined) {
+    result += `.${versionInfo.build}`;
+  }
   if (versionInfo.tag) {
     result += `-${versionInfo.tag}`;
   }
@@ -34,4 +41,14 @@ export function buildVersionString(versionInfo: VersionInfo): string {
 
 export function replaceVersion(input: string, version: string): string {
   return input.replace(assemblyVersionRegExp, `AssemblyVersion("${version}")`);
+}
+
+export function getGithubToken(): string {
+  const envToken = process.env.GITHUB_TOKEN;
+  const inputToken = getInput('GITHUB_TOKEN', { trimWhitespace: true });
+  const token = envToken ?? inputToken;
+  if (!token) {
+    throw new Error('GITHUB_TOKEN is not provided');
+  }
+  return token;
 }

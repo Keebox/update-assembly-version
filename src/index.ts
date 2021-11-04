@@ -4,40 +4,47 @@ import { createCommit } from './git';
 import {
   buildVersionString,
   findAssemblyVersion,
+  getGithubToken,
   parseVersion,
   replaceVersion,
 } from './utils';
 
 const main = async () => {
   try {
-    const githubToken = getInput('GITHUB_TOKEN', {
-      trimWhitespace: true,
-      required: true,
-    });
+    const token = getGithubToken();
     const assemblyFile = getInput('assembly-file', {
       trimWhitespace: true,
       required: true,
     });
+    const increaseMajor = getBooleanInput('increase-major', {
+      trimWhitespace: true,
+    });
+    const increaseMinor = getBooleanInput('increase-minor', {
+      trimWhitespace: true,
+    });
     const increaseBuild = getBooleanInput('increase-build', {
       trimWhitespace: true,
     });
-    const increaseRelease = getBooleanInput('increase-release', {
-      trimWhitespace: true,
-    });
-    const tag = getInput('tag', {
-      trimWhitespace: true,
-    });
+    const tag = getInput('tag', { trimWhitespace: true });
+    const branch = getInput('branch', { trimWhitespace: true });
 
     const file = readFileSync(assemblyFile, { encoding: 'utf8' });
     const version = findAssemblyVersion(file);
     const versionInfo = parseVersion(version);
     if (increaseBuild) {
-      versionInfo.build += 1;
+      versionInfo.build =
+        versionInfo.build !== undefined ? versionInfo.build + 1 : 1;
       versionInfo.tag = undefined;
     }
-    if (increaseRelease) {
-      versionInfo.release += 1;
-      versionInfo.build = 0;
+    if (increaseMinor) {
+      versionInfo.minor += 1;
+      versionInfo.build = undefined;
+      versionInfo.tag = undefined;
+    }
+    if (increaseMajor) {
+      versionInfo.major += 1;
+      versionInfo.minor = 0;
+      versionInfo.build = undefined;
       versionInfo.tag = undefined;
     }
     if (tag) {
@@ -46,13 +53,14 @@ const main = async () => {
     const newVersion = buildVersionString(versionInfo);
     const newFile = replaceVersion(file, newVersion);
     writeFileSync(assemblyFile, newFile);
-
     if (!process.env.GITHUB_REPOSITORY) {
       throw new Error('Cannot get Github repository from environment variable');
     }
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     let ref: string;
-    if (process.env.GITHUB_HEAD_REF) {
+    if (branch) {
+      ref = `heads/${branch}`;
+    } else if (process.env.GITHUB_HEAD_REF) {
       ref = `heads/${process.env.GITHUB_HEAD_REF}`;
     } else {
       if (!process.env.GITHUB_REF) {
@@ -67,7 +75,7 @@ const main = async () => {
         content: newFile,
         path: assemblyFile,
       },
-      githubToken,
+      githubToken: token,
       message: `Update version from ${version} to ${newVersion}`,
       owner,
       repo,

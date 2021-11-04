@@ -4,17 +4,26 @@ inputs:
   assembly-file:
     description: 'Path to file that contains assembly version'
     required: true
+  increase-major:
+    description: 'Whether to increase major number'
+    default: false
+  increase-minor:
+    description: 'Whether to increase minor number'
+    default: false
   increase-build:
     description: 'Whether to increase build number'
     default: true
-  increase-release:
-    description: 'Whether to increase release number'
-    default: false
+  branch:
+    description: 'Branch to which commit will be made'
   tag:
     description: 'Assembly tag'
   GITHUB_TOKEN:
-    required: true
-
+    description: 'Github access token'
+outputs:
+  oldVersion:
+    description: 'Old version from file'
+  newVersion:
+    description: 'New version'
 runs:
   using: 'node12'
   main: 'dist/index.js'
