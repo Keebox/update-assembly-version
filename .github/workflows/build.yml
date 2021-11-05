@@ -11,7 +11,9 @@ jobs:
     name: Build, commit, create pull request
     steps:
       - name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
       - name: Install modules
         run: npm ci
       - name: Compile typescript
