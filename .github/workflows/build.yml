@@ -44,5 +44,5 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: releases/${{ env.NEW_TAG }}
-          branch: main
+          base: main
+          branch: releases/${{ env.NEW_TAG }}
