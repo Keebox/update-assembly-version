@@ -20,9 +20,9 @@ inputs:
   GITHUB_TOKEN:
     description: 'Github access token'
 outputs:
-  oldVersion:
+  old-version:
     description: 'Old version from file'
-  newVersion:
+  new-version:
     description: 'New version'
 runs:
   using: 'node12'

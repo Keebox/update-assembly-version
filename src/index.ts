@@ -1,4 +1,10 @@
-import { getInput, setFailed, getBooleanInput, info } from '@actions/core';
+import {
+  getInput,
+  setFailed,
+  getBooleanInput,
+  info,
+  setOutput,
+} from '@actions/core';
 import { readFileSync, writeFileSync } from 'fs';
 import { createCommit } from './git';
 import {
@@ -81,6 +87,8 @@ const main = async () => {
       repo,
       ref,
     });
+    setOutput('old-version', version);
+    setOutput('new-version', newVersion);
   } catch (error) {
     setFailed(error as Error);
   }
