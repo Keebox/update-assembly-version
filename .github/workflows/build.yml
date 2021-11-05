@@ -1,9 +1,8 @@
-name: Build and publish action
+name: Build and commit action
 
 on:
-  # pull_request:
-  #   branches: [master]
-  workflow_dispatch:
+  push:
+    - main
 
 jobs:
   build:
@@ -25,4 +24,13 @@ jobs:
           git config user.email "<>"
           git add -f dist
           git commit -m "Add dist"
-          git push origin master
+      - name: Tag commit
+        run: |
+          tag=$(git describe --tags --abbrev=0);
+          minor=$(echo $tag | grep -oP "^v\d+\.\d+$" | grep -oP "\.\d+" | grep -oP "\d+");
+          minor=$(($minor+1))
+          newTag=$(node -e 'console.log(process.argv[1].replace(/^(v\d+\.)(\d+)$/, `$1${process.argv[2]}`));' $tag "$minor")
+          git tag $newTag
+      - name: Push
+        run: |
+          git push
