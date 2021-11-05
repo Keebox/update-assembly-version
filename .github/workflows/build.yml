@@ -42,6 +42,8 @@ jobs:
           git push origin releases/${{ env.NEW_TAG }}
       - name: Create pull request
         uses: peter-evans/create-pull-request@v3
+        permissions:
+          pull-requests: read|write
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: releases/${{ env.NEW_TAG }}
