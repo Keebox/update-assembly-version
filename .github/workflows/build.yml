@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Build, commit, create pull request
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -38,5 +39,6 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: releases/${{ env.NEW_TAG }}
           branch: main
