@@ -20,6 +20,7 @@ jobs:
         run: npm run build
       - name: Calculate next version
         run: |
+          git status
           tag=$(git describe --tags --abbrev=0);
           minor=$(echo $tag | grep -oP "^v\d+\.\d+$" | grep -oP "\.\d+" | grep -oP "\d+");
           minor=$(($minor+1));
@@ -32,7 +33,7 @@ jobs:
           git config user.name "update-assembly-version"
           git config user.email "<>"
           git add -f dist
-          git commit -m "Add dist"
+          git commit -m "Add build for ${{ env.NEW_TAG }}"
       - name: Tag commit
         run: git tag ${{ env.NEW_TAG }}
       - name: Push
