@@ -20,7 +20,7 @@ jobs:
         run: npm run build
       - name: Calculate next version
         run: |
-          git status
+          git fetch
           tag=$(git describe --tags --abbrev=0);
           minor=$(echo $tag | grep -oP "^v\d+\.\d+$" | grep -oP "\.\d+" | grep -oP "\d+");
           minor=$(($minor+1));
