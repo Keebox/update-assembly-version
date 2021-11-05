@@ -22,22 +22,22 @@ jobs:
         run: npm run build
       - name: Calculate next version
         run: |
-          git fetch
           tag=$(git describe --tags --abbrev=0);
           minor=$(echo $tag | grep -oP "^v\d+\.\d+$" | grep -oP "\.\d+" | grep -oP "\d+");
           minor=$(($minor+1));
           newTag=$(node -e 'console.log(process.argv[1].replace(/^(v\d+\.)(\d+)$/, `$1${process.argv[2]}`));' $tag "$minor");
           echo "NEW_TAG=$newTag" >> $GITHUB_ENV;
-      - name: Switch to release branch
-        run: git switch -c releases/${{ env.NEW_TAG }}
       - name: Commit build
         run: |
+          echo "Switching to release branch"
+          git switch -c releases/${{ env.NEW_TAG }}
+          echo "Creating commit"
           git config user.name "update-assembly-version"
           git config user.email "<>"
           git add -f dist
           git commit -m "Add build for ${{ env.NEW_TAG }}"
-      - name: Tag commit
-        run: git tag ${{ env.NEW_TAG }}
+          echo "Tagging commit"
+          git tag ${{ env.NEW_TAG }}
       - name: Push
         run: git push origin releases/${{ env.NEW_TAG }}
       - name: Create pull request
