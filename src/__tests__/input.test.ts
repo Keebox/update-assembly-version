@@ -122,9 +122,9 @@ describe('getInputs', () => {
     getInputMock.mockImplementation((name: string) => {
       switch (name) {
         case 'GITHUB_TOKEN':
-          return '';
+          return 'token';
         case 'assembly-file':
-          return 'file';
+          throw new Error('Assembly File is not provided');
         case 'tag':
           return 'beta';
         default:
