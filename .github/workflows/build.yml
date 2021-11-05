@@ -39,7 +39,7 @@ jobs:
           echo "Tagging commit"
           git tag ${{ env.NEW_TAG }}
           echo "Pushing branch"
-          git push origin releases/${{ env.NEW_TAG }}
+          git push origin releases/${{ env.NEW_TAG }} --follow-tags
       - name: Create Pull Request
         uses: thomaseizinger/create-pull-request@master
         with:
