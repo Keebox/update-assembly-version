@@ -1,0 +1,5 @@
+name: Create release
+
+on:
+  push:
+    tag
