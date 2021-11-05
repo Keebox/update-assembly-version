@@ -41,10 +41,9 @@ jobs:
           echo "Pushing branch"
           git push origin releases/${{ env.NEW_TAG }}
       - name: Create Pull Request
-        uses: gha-utilities/init-pull-request@v0.3.2
+        uses: thomaseizinger/create-pull-request@master
         with:
-          verbose: true
-          pull_request_token: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           head: releases/${{ env.NEW_TAG }}
           base: main
           title: 'Release ${{ env.NEW_TAG }}'
