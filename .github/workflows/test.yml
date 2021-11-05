@@ -1,7 +1,7 @@
 name: Test action
 
 on:
-  workflow_dispatch:
+  - pull_request
 
 jobs:
   build-version:
@@ -10,72 +10,59 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install modules
+        run: npm ci
+      - name: Install ts-node
+        run: npm install -g ts-node
       - name: Save current version
-        run: |
-          echo $GITHUB_REF;
-          old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
-          echo "OLD_VERSION=$old_version" >> $GITHUB_ENV;
+        run: ts-node scripts/saveCurrent.ts
+      - name: Compile typescript
+        run: npm run compile
+      - name: Build into single file
+        run: npm run build
       - name: Run action
-        uses: keebox/update-assembly-version@v0.15
+        uses: ./
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           assembly-file: AssemblyVersion.cs
           increase-build: true
-          increase-release: false
-      - name: Check new version
+          make-commit: false
+      - name: Check build
         run: |
-          new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
-          echo $new_version
-          echo $OLD_VERSION
-          new_arr=($(echo $new_version | tr "." "\n"))
-          old_arr=($(echo $OLD_VERSION | tr "." "\n"))
-          res=$((new_arr[1]-old_arr[1]))
-          echo $res
-          if [ $res != 1 ]
-          then
-            echo "Build number is not increased"
-            exit 1
-          else
-            echo "Build number increased"
-          fi
-  release-version:
-    needs: build-version
-    name: Update release version
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+          ts-node scripts/checkBuild.ts
       - name: Save current version
-        run: |
-          old_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
-          echo "OLD_VERSION=$old_version" >> $GITHUB_ENV;
+        run: ts-node scripts/saveCurrent.ts
       - name: Run action
-        uses: keebox/update-assembly-version@v0.15
+        uses: ./
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           assembly-file: AssemblyVersion.cs
-          increase-build: true
-          increase-release: true
-      - name: Check new version
+          tag: 'beta'
+          make-commit: false
+      - name: Check build
         run: |
-          new_version=$( cat AssemblyVersion.cs | grep -oP '(?<=AssemblyVersion\(\")[\d\w-\.]*(?=\")' );
-          echo $new_version
-          echo $OLD_VERSION
-          new_arr=($(echo $new_version | tr "." "\n"))
-          old_arr=($(echo $OLD_VERSION | tr "." "\n"))
-          build=$((new_arr[1]))
-          if [ $build != 0 ]
-          then
-            echo "Build number is not reset"
-            exit 1
-          else
-            echo "Build version reset"
-          fi
-          res=$((new_arr[0]-old_arr[0]))
-          if [ $res != 1 ]
-          then
-            echo "Release number is not reset"
-            exit 1
-          else
-            echo "Release version increased"
-          fi
+          ts-node scripts/checkTag.ts
+      - name: Save current version
+        run: ts-node scripts/saveCurrent.ts
+      - name: Run action
+        uses: ./
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          assembly-file: AssemblyVersion.cs
+          increase-minor: true
+          make-commit: false
+      - name: Check minor
+        run: |
+          ts-node scripts/checkMinor.ts
+      - name: Save current version
+        run: ts-node scripts/saveCurrent.ts
+      - name: Run action
+        uses: ./
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          assembly-file: AssemblyVersion.cs
+          increase-major: true
+          make-commit: false
+      - name: Check major
+        run: |
+          ts-node scripts/checkMajor.ts

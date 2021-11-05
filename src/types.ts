@@ -18,7 +18,7 @@ export type CommitInfo = {
 };
 
 export type Inputs = {
-  token: string;
+  token?: string;
   assemblyFile: string;
   increaseMajor: boolean;
   increaseMinor: boolean;

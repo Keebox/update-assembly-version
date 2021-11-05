@@ -1,13 +1,10 @@
 import { getBooleanInput, getInput } from '@actions/core';
 import { Inputs } from './types';
 
-export function getGithubToken(): string {
+export function getGithubToken(): string | undefined {
   const envToken = process.env.GITHUB_TOKEN;
   const inputToken = getInput('GITHUB_TOKEN');
   const token = envToken ?? inputToken;
-  if (!token) {
-    throw new Error('GITHUB_TOKEN is not provided');
-  }
   return token;
 }
 

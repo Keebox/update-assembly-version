@@ -81,6 +81,9 @@ const main = async () => {
     info(`Using ${ref}`);
     if (makeCommit) {
       debug('Making commit');
+      if (!token) {
+        throw new Error('GITHUB_TOKEN is not provided');
+      }
       await createCommit({
         file: {
           content: newFile,
