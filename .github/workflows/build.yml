@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build, commit, create pull request
     permissions:
-      pull-requests: read|write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v2.2.0
