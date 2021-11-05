@@ -29,8 +29,6 @@ jobs:
           echo "NEW_TAG=$newTag" >> $GITHUB_ENV;
       - name: Commit build
         run: |
-          echo "Switching to release branch"
-          git switch -c releases/${{ env.NEW_TAG }}
           echo "Creating commit"
           git config user.name "update-assembly-version"
           git config user.email "<>"
@@ -38,12 +36,8 @@ jobs:
           git commit -m "Add build for ${{ env.NEW_TAG }}"
           echo "Tagging commit"
           git tag ${{ env.NEW_TAG }}
-          echo "Pushing branch"
-          git push origin releases/${{ env.NEW_TAG }} --follow-tags
-      - name: Create Pull Request
-        uses: thomaseizinger/create-pull-request@master
+      - name: Push
+        uses: ad-m/github-push-action@master
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          head: releases/${{ env.NEW_TAG }}
-          base: main
-          title: 'Release ${{ env.NEW_TAG }}'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
