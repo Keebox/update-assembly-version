@@ -82,77 +82,128 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const fs_1 = __nccwpck_require__(5747);
 const git_1 = __nccwpck_require__(8102);
+const input_1 = __nccwpck_require__(4273);
 const utils_1 = __nccwpck_require__(4140);
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const githubToken = (0, core_1.getInput)('GITHUB_TOKEN', {
-            trimWhitespace: true,
-            required: true,
-        });
-        const assemblyFile = (0, core_1.getInput)('assembly-file', {
-            trimWhitespace: true,
-            required: true,
-        });
-        const increaseBuild = (0, core_1.getBooleanInput)('increase-build', {
-            trimWhitespace: true,
-        });
-        const increaseRelease = (0, core_1.getBooleanInput)('increase-release', {
-            trimWhitespace: true,
-        });
-        const tag = (0, core_1.getInput)('tag', {
-            trimWhitespace: true,
-        });
+        (0, core_1.debug)('Getting inputs');
+        const { assemblyFile, increaseBuild, increaseMinor, increaseMajor, token, makeCommit, branch, tag, } = (0, input_1.getInputs)();
+        (0, core_1.debug)('Reading assembly file');
         const file = (0, fs_1.readFileSync)(assemblyFile, { encoding: 'utf8' });
+        (0, core_1.debug)('Getting assembly version');
         const version = (0, utils_1.findAssemblyVersion)(file);
+        (0, core_1.debug)('Parsing version info');
         const versionInfo = (0, utils_1.parseVersion)(version);
         if (increaseBuild) {
-            versionInfo.build += 1;
+            (0, core_1.debug)('Increasing build number');
+            versionInfo.build =
+                versionInfo.build !== undefined ? versionInfo.build + 1 : 1;
             versionInfo.tag = undefined;
         }
-        if (increaseRelease) {
-            versionInfo.release += 1;
-            versionInfo.build = 0;
+        if (increaseMinor) {
+            (0, core_1.debug)('Increasing minor number');
+            versionInfo.minor += 1;
+            versionInfo.build = undefined;
+            versionInfo.tag = undefined;
+        }
+        if (increaseMajor) {
+            (0, core_1.debug)('Increasing major number');
+            versionInfo.major += 1;
+            versionInfo.minor = 0;
+            versionInfo.build = undefined;
             versionInfo.tag = undefined;
         }
         if (tag) {
+            (0, core_1.debug)('Setting tag');
             versionInfo.tag = tag;
         }
+        (0, core_1.debug)('Building new version');
         const newVersion = (0, utils_1.buildVersionString)(versionInfo);
+        (0, core_1.debug)('Replacing version');
         const newFile = (0, utils_1.replaceVersion)(file, newVersion);
+        (0, core_1.debug)('Writing new file');
         (0, fs_1.writeFileSync)(assemblyFile, newFile);
         if (!process.env.GITHUB_REPOSITORY) {
             throw new Error('Cannot get Github repository from environment variable');
         }
+        (0, core_1.debug)('Getting owner and repo');
         const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
         let ref;
-        if (process.env.GITHUB_HEAD_REF) {
+        if (branch) {
+            (0, core_1.debug)('Using branch');
+            ref = `heads/${branch}`;
+        }
+        else if (process.env.GITHUB_HEAD_REF) {
+            (0, core_1.debug)('Using head ref');
             ref = `heads/${process.env.GITHUB_HEAD_REF}`;
         }
         else {
             if (!process.env.GITHUB_REF) {
                 throw new Error('Cannot get Github ref');
             }
+            (0, core_1.debug)('Using ref');
             ref = process.env.GITHUB_REF;
         }
         ref = ref.replace('refs/', '');
-        (0, core_1.info)(`Using ${ref} ref`);
-        yield (0, git_1.createCommit)({
-            file: {
-                content: newFile,
-                path: assemblyFile,
-            },
-            githubToken,
-            message: `Update version from ${version} to ${newVersion}`,
-            owner,
-            repo,
-            ref,
-        });
+        (0, core_1.info)(`Using ${ref}`);
+        if (makeCommit) {
+            (0, core_1.debug)('Making commit');
+            if (!token) {
+                throw new Error('GITHUB_TOKEN is not provided');
+            }
+            yield (0, git_1.createCommit)({
+                file: {
+                    content: newFile,
+                    path: assemblyFile,
+                },
+                githubToken: token,
+                message: `Update version from ${version} to ${newVersion}`,
+                owner,
+                repo,
+                ref,
+            });
+        }
+        (0, core_1.debug)('Setting output');
+        (0, core_1.setOutput)('old-version', version);
+        (0, core_1.setOutput)('new-version', newVersion);
     }
     catch (error) {
         (0, core_1.setFailed)(error);
     }
 });
 main();
+
+
+/***/ }),
+
+/***/ 4273:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getInputs = exports.getGithubToken = void 0;
+const core_1 = __nccwpck_require__(2186);
+function getGithubToken() {
+    const envToken = process.env.GITHUB_TOKEN;
+    const inputToken = (0, core_1.getInput)('GITHUB_TOKEN');
+    const token = envToken !== null && envToken !== void 0 ? envToken : inputToken;
+    return token;
+}
+exports.getGithubToken = getGithubToken;
+function getInputs() {
+    return {
+        token: getGithubToken(),
+        assemblyFile: (0, core_1.getInput)('assembly-file', { required: true }),
+        increaseMajor: (0, core_1.getBooleanInput)('increase-major', { required: true }),
+        increaseMinor: (0, core_1.getBooleanInput)('increase-minor', { required: true }),
+        increaseBuild: (0, core_1.getBooleanInput)('increase-build', { required: true }),
+        tag: (0, core_1.getInput)('tag') || undefined,
+        branch: (0, core_1.getInput)('branch') || undefined,
+        makeCommit: (0, core_1.getBooleanInput)('make-commit', { required: true }),
+    };
+}
+exports.getInputs = getInputs;
 
 
 /***/ }),
@@ -164,8 +215,8 @@ main();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.replaceVersion = exports.buildVersionString = exports.parseVersion = exports.findAssemblyVersion = void 0;
-const assemblyVersionRegExp = /AssemblyVersion\s*\(\s*"(?<version>\d+\.\d+(-\w+)?)"\s*\)/;
-const buildVersionRegExp = /^(?<release>\d+\.)(?<build>\d+)(-(?<tag>\w+))?$/;
+const assemblyVersionRegExp = /AssemblyVersion\s*\(\s*"(?<version>\d+\.\d+(\.\d+)?(-\w+)?)"\s*\)/;
+const buildVersionRegExp = /^(?<major>\d+\.)(?<minor>\d+)(\.(?<build>\d+))?(-(?<tag>\w+))?$/;
 function findAssemblyVersion(input) {
     var _a;
     const groups = (_a = input.match(assemblyVersionRegExp)) === null || _a === void 0 ? void 0 : _a.groups;
@@ -182,14 +233,18 @@ function parseVersion(version) {
         throw new Error('Cannot parse version');
     }
     return {
-        release: parseInt(groups['release']),
-        build: parseInt(groups['build']),
+        major: parseInt(groups['major']),
+        minor: parseInt(groups['minor']),
+        build: groups['build'] !== undefined ? parseInt(groups['build']) : undefined,
         tag: (_b = groups['tag']) !== null && _b !== void 0 ? _b : undefined,
     };
 }
 exports.parseVersion = parseVersion;
 function buildVersionString(versionInfo) {
-    let result = `${versionInfo.release}.${versionInfo.build}`;
+    let result = `${versionInfo.major}.${versionInfo.minor}`;
+    if (versionInfo.build !== undefined) {
+        result += `.${versionInfo.build}`;
+    }
     if (versionInfo.tag) {
         result += `-${versionInfo.tag}`;
     }
