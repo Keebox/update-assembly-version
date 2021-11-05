@@ -42,13 +42,3 @@ export function buildVersionString(versionInfo: VersionInfo): string {
 export function replaceVersion(input: string, version: string): string {
   return input.replace(assemblyVersionRegExp, `AssemblyVersion("${version}")`);
 }
-
-export function getGithubToken(): string {
-  const envToken = process.env.GITHUB_TOKEN;
-  const inputToken = getInput('GITHUB_TOKEN', { trimWhitespace: true });
-  const token = envToken ?? inputToken;
-  if (!token) {
-    throw new Error('GITHUB_TOKEN is not provided');
-  }
-  return token;
-}

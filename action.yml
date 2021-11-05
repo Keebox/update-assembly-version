@@ -13,10 +13,13 @@ inputs:
   increase-build:
     description: 'Whether to increase build number'
     default: true
-  branch:
-    description: 'Branch to which commit will be made'
   tag:
     description: 'Assembly tag'
+  branch:
+    description: 'Branch to which commit will be made'
+  make-commit:
+    description: 'Whether to make commit'
+    default: false
   GITHUB_TOKEN:
     description: 'Github access token'
 outputs:

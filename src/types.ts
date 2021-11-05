@@ -16,3 +16,14 @@ export type CommitInfo = {
     content: string;
   };
 };
+
+export type Inputs = {
+  token: string;
+  assemblyFile: string;
+  increaseMajor: boolean;
+  increaseMinor: boolean;
+  increaseBuild: boolean;
+  tag?: string;
+  branch?: string;
+  makeCommit: boolean;
+};
