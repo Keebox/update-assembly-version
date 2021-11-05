@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build, commit, create pull request
+    name: Build, commit and tag
     steps:
       - name: Checkout
         uses: actions/checkout@v2.2.0
