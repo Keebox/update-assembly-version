@@ -195,12 +195,12 @@ function getInputs() {
     return {
         token: getGithubToken(),
         assemblyFile: (0, core_1.getInput)('assembly-file', { required: true }),
-        increaseMajor: (0, core_1.getBooleanInput)('increase-major', { required: true }),
-        increaseMinor: (0, core_1.getBooleanInput)('increase-minor', { required: true }),
-        increaseBuild: (0, core_1.getBooleanInput)('increase-build', { required: true }),
+        increaseMajor: (0, core_1.getBooleanInput)('increase-major'),
+        increaseMinor: (0, core_1.getBooleanInput)('increase-minor'),
+        increaseBuild: (0, core_1.getBooleanInput)('increase-build'),
         tag: (0, core_1.getInput)('tag') || undefined,
         branch: (0, core_1.getInput)('branch') || undefined,
-        makeCommit: (0, core_1.getBooleanInput)('make-commit', { required: true }),
+        makeCommit: (0, core_1.getBooleanInput)('make-commit'),
     };
 }
 exports.getInputs = getInputs;
