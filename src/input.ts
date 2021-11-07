@@ -12,11 +12,11 @@ export function getInputs(): Inputs {
   return {
     token: getGithubToken(),
     assemblyFile: getInput('assembly-file', { required: true }),
-    increaseMajor: getBooleanInput('increase-major', { required: true }),
-    increaseMinor: getBooleanInput('increase-minor', { required: true }),
-    increaseBuild: getBooleanInput('increase-build', { required: true }),
+    increaseMajor: getBooleanInput('increase-major'),
+    increaseMinor: getBooleanInput('increase-minor'),
+    increaseBuild: getBooleanInput('increase-build'),
     tag: getInput('tag') || undefined,
     branch: getInput('branch') || undefined,
-    makeCommit: getBooleanInput('make-commit', { required: true }),
+    makeCommit: getBooleanInput('make-commit'),
   };
 }
